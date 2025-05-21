@@ -137,3 +137,11 @@ func (a Attributes) Get(key string) string {
 	}
 	return v[0]
 }
+
+func (a Attributes) GetAll(key string) []string {
+	if a == nil {
+		return []string{""}
+	}
+	v := a[key]
+	return v
+}

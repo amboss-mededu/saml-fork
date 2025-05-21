@@ -87,3 +87,15 @@ func AttributeFromContext(ctx context.Context, name string) string {
 	}
 	return sa.GetAttributes().Get(name)
 }
+
+func GetAllAttributesFromContext(ctx context.Context, name string) []string {
+	s := SessionFromContext(ctx)
+	if s == nil {
+		return []string{""}
+	}
+	sa, ok := s.(SessionWithAttributes)
+	if !ok {
+		return []string{""}
+	}
+	return sa.GetAttributes().GetAll(name)
+}
