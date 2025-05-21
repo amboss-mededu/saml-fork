@@ -69,7 +69,6 @@ func NewServiceProviderTest(t *testing.T) *ServiceProviderTest {
 	test.IDPMetadata = golden.Get(t, "SP_IDPMetadata")
 	return &test
 }
-
 func TestSPCanSetAuthenticationNameIDFormat(t *testing.T) {
 	test := NewServiceProviderTest(t)
 
@@ -2036,4 +2035,26 @@ func TestSPInvalidResponses(t *testing.T) {
 
 	assert.Check(t, is.Error(err.(*InvalidResponseError).PrivateErr,
 		"cannot validate signature on Assertion: x509: malformed certificate"))
+}
+
+func TestParseResponseWithSkipIssuerCheck(t *testing.T) {
+	test := NewServiceProviderTest(t)
+
+	s := ServiceProvider{
+		Key:             test.Key,
+		Certificate:     test.Certificate,
+		MetadataURL:     mustParseURL("https://15661444.ngrok.io/saml2/metadata"),
+		AcsURL:          mustParseURL("https://15661444.ngrok.io/saml2/acs"),
+		IDPMetadata:     &EntityDescriptor{},
+		SkipIssuerCheck: true, // Skip issuer validation
+	}
+	err := xml.Unmarshal(test.IDPMetadata, &s.IDPMetadata)
+	assert.Check(t, err)
+
+	req := http.Request{PostForm: url.Values{}, URL: &s.AcsURL}
+	test.SamlResponse = bytes.Replace(test.SamlResponse,
+		[]byte(`https://idp.testshib.org/idp/shibboleth`), []byte("PINEAPPLE"), 1)
+	req.PostForm.Set("SAMLResponse", base64.StdEncoding.EncodeToString(test.SamlResponse))
+	_, err = s.ParseResponse(&req, []string{"id-9e61753d64e928af5a7a341a97f420c9"})
+	assert.Check(t, err)
 }

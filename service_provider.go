@@ -135,6 +135,8 @@ type ServiceProvider struct {
 	// to verify signatures.
 	SignatureVerifier SignatureVerifier
 
+	SkipIssuerCheck bool
+
 	// SignatureMethod, if non-empty, authentication requests will be signed.
 	//
 	// The method specified here must be consistent with the type of Key.
@@ -890,7 +892,7 @@ func (sp *ServiceProvider) parseArtifactResponse(artifactResponseEl *etree.Eleme
 			retErr.PrivateErr = fmt.Errorf("response IssueInstant expired at %s", artifactResponse.IssueInstant.Add(MaxIssueDelay))
 			return nil, retErr
 		}
-		if artifactResponse.Issuer != nil && artifactResponse.Issuer.Value != sp.IDPMetadata.EntityID {
+		if !sp.SkipIssuerCheck && artifactResponse.Issuer != nil && artifactResponse.Issuer.Value != sp.IDPMetadata.EntityID {
 			retErr.PrivateErr = fmt.Errorf("response Issuer does not match the IDP metadata (expected %q)", sp.IDPMetadata.EntityID)
 			return nil, retErr
 		}
@@ -1022,7 +1024,7 @@ func (sp *ServiceProvider) parseResponse(responseEl *etree.Element, possibleRequ
 		if response.IssueInstant.Add(MaxIssueDelay).Before(now) {
 			return nil, fmt.Errorf("response IssueInstant expired at %s", response.IssueInstant.Add(MaxIssueDelay))
 		}
-		if response.Issuer != nil && response.Issuer.Value != sp.IDPMetadata.EntityID {
+		if !sp.SkipIssuerCheck && response.Issuer != nil && response.Issuer.Value != sp.IDPMetadata.EntityID {
 			return nil, fmt.Errorf("response Issuer does not match the IDP metadata (expected %q)", sp.IDPMetadata.EntityID)
 		}
 		if response.Status.StatusCode.Value != StatusSuccess {
@@ -1728,7 +1730,7 @@ func (sp *ServiceProvider) validateLogoutResponse(resp *LogoutResponse) error {
 	if resp.IssueInstant.Add(MaxIssueDelay).Before(now) {
 		return fmt.Errorf("issueInstant expired at %s", resp.IssueInstant.Add(MaxIssueDelay))
 	}
-	if resp.Issuer.Value != sp.IDPMetadata.EntityID {
+	if !sp.SkipIssuerCheck && resp.Issuer.Value != sp.IDPMetadata.EntityID {
 		return fmt.Errorf("issuer does not match the IDP metadata (expected %q)", sp.IDPMetadata.EntityID)
 	}
 	if resp.Status.StatusCode.Value != StatusSuccess {
