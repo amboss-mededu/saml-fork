@@ -1,7 +1,7 @@
 package samlsp
 
 import (
-	"github.com/crewjam/saml"
+	"github.com/amboss-mededu/saml-fork"
 )
 
 var _ AssertionHandler = NopAssertionHandler{}

@@ -1,4 +1,4 @@
-module github.com/crewjam/saml
+module github.com/amboss-mededu/saml-fork
 
 go 1.22
 

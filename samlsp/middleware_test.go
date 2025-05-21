@@ -22,8 +22,8 @@ import (
 	is "gotest.tools/assert/cmp"
 	"gotest.tools/golden"
 
-	"github.com/crewjam/saml"
-	"github.com/crewjam/saml/testsaml"
+	"github.com/amboss-mededu/saml-fork"
+	"github.com/amboss-mededu/saml-fork/testsaml"
 )
 
 type MiddlewareTest struct {

@@ -61,7 +61,7 @@ formatters:
   settings:
     goimports:
       local-prefixes:
-        - github.com/crewjam/saml
+        - github.com/amboss-mededu/saml-fork
   exclusions:
     generated: lax
     paths:
