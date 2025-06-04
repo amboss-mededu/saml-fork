@@ -55,7 +55,11 @@ func (c JWTSessionCodec) New(assertion *saml.Assertion) (Session, error) {
 				claimName = attr.Name
 			}
 			for _, value := range attr.Values {
-				claims.Attributes[claimName] = append(claims.Attributes[claimName], value.Value)
+				if value.Value == "" && value.NameID != nil {
+					claims.Attributes[claimName] = append(claims.Attributes[claimName], value.NameID.Value) // cater to eduPersonTargetedID
+				} else {
+					claims.Attributes[claimName] = append(claims.Attributes[claimName], value.Value)
+				}
 			}
 		}
 	}
